@@ -40,7 +40,7 @@ const handleSubmit = async (e) => {
                 <p class="font-bold">{{message}}</p>
             </div>
         </div>
-        <div v-if="message" class="alert-message">
+        <div v-if="error" class="alert-message">
             <div class="bg-red-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3" role="alert">
                 <p class="font-bold">{{error}}</p>
             </div>

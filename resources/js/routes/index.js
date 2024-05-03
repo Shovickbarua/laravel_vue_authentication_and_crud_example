@@ -7,7 +7,7 @@ import Items from "../pages/items/Items.vue";
 import ItemForm from "../pages/items/ItemForm.vue";
 import Root from "../Root.vue"
 import GuestRoot from "../GuestRoot.vue"
-// import { inject } from 'vue'
+import { inject } from 'vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,18 +39,23 @@ const router = createRouter({
   })
   
   // Global beforeEach guard to redirect based on user state
-  // router.beforeEach((to, from, next) => {
-  //   const user = inject('user');
-  //   // If the user exists and they're trying to go to login, redirect to inventory
-  //   if (user && to.path === '/') {
-  //     return next('/inventory');
-  //   }
-  //   // If the user does not exist and they're trying to access a protected route, redirect to login
-  //   if (!user) {
-  //     return next('/');
-  //   }
-  //   // Otherwise, continue
-  //   next();
-  // });
-
+  router.beforeEach((to, from, next) => {
+    const user = inject('user'); // This retrieves the 'user' context
+    console.log('user', user);
+    if (to.path === '/' || to.path === '/register') {
+      // Guest routes
+      if (user && user.value) {
+        // Redirect logged-in users to inventory
+        return next('/inventory');
+      }
+    } else {
+      // Protected routes
+      if (!user || !user.value) {
+        // Redirect not-logged-in users to login
+        return next('/');
+      }
+    }
+  
+    next(); // Proceed to the next step if all checks pass
+  });
   export default router
