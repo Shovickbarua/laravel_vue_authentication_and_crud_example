@@ -1,11 +1,9 @@
 <script setup>
 import { reactive, provide, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import AuthApi from '../../api/AuthApi';
+import useAuth from '../../composables/UseAuth';
 
 const message = ref('');
-const error = ref('');
-const user = ref('');
 const loading = ref(false);
 
 const login = reactive({
@@ -14,15 +12,14 @@ const login = reactive({
 });
 
 const router = useRouter();
+const { error, login: authLogin } = useAuth();
 
 const handleSubmit = async (e) => {
     e.preventDefault();
     loading.value = true;
-    const res = await AuthApi.login(login);
+    const res = await authLogin(login);
     if (res.success) {
-        message.value = res.data.message; 
-        user.value = res.data.data;
-        provide('user', user);
+        message.value = message; 
         router.push('/inventory');
     }else if (res.errors){
         error.value = res.errors.message;

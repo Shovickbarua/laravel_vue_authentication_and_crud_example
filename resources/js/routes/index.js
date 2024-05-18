@@ -7,7 +7,7 @@ import Items from "../pages/items/Items.vue";
 import ItemForm from "../pages/items/ItemForm.vue";
 import Root from "../Root.vue"
 import GuestRoot from "../GuestRoot.vue"
-import { inject } from 'vue'
+import useAuth from '../composables/UseAuth';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,6 +25,7 @@ const router = createRouter({
         path: '/',
         name: 'root',
         component: Root,
+        meta: { requiresAuth: true },
         children: [
           { path: '/inventory', name: 'inventory', component: Inventory },
           { path: '/add-inventory', name: 'add-inventory', component: InventoryForm },
@@ -38,24 +39,13 @@ const router = createRouter({
     ]
   })
   
-  // Global beforeEach guard to redirect based on user state
   router.beforeEach((to, from, next) => {
-    const user = inject('user'); // This retrieves the 'user' context
-    console.log('user', user);
-    if (to.path === '/' || to.path === '/register') {
-      // Guest routes
-      if (user && user.value) {
-        // Redirect logged-in users to inventory
-        return next('/inventory');
-      }
+    const { isAuthenticated } = useAuth();
+    if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated.value) {
+      next({ path: '/' });
     } else {
-      // Protected routes
-      if (!user || !user.value) {
-        // Redirect not-logged-in users to login
-        return next('/');
-      }
+      next();
     }
-  
-    next(); // Proceed to the next step if all checks pass
   });
+  
   export default router
